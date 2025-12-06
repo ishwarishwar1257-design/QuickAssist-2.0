@@ -1,7 +1,13 @@
 import { GoogleGenAI, Schema, Type } from "@google/genai";
 
-// Initialize the client with the API key from the environment
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize the client lazily to prevent crash on load if environment is not ready
+let ai: GoogleGenAI | null = null;
+const getAiClient = () => {
+  if (!ai) {
+    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  }
+  return ai;
+};
 
 const providerSchema: Schema = {
   type: Type.ARRAY,
@@ -125,6 +131,7 @@ const ODISHA_TEMPLES = [
 
 export const generateAssistanceResponse = async (prompt: string): Promise<string> => {
   try {
+    const ai = getAiClient();
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
@@ -146,6 +153,7 @@ export const findNearbyProviders = async (serviceType: string, lat: number, lng:
   }
 
   try {
+    const ai = getAiClient();
     // We simulate a search by asking the AI to generate realistic data based on the location context.
     const prompt = `Generate a JSON list of 6 realistic ${serviceType} options that would be located near Latitude: ${lat}, Longitude: ${lng} (Preferably in Odisha, India context like Bhubaneswar, Cuttack, Puri if coordinates match or as fallback). 
     - Names should be realistic for Odisha (e.g., "Kalinga Auto Works", "Omm Sai Clinic", "Utkal Book Store").

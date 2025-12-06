@@ -167,7 +167,7 @@ const App: React.FC = () => {
 
   // Tracking Animation Effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (isTrackingModalOpen) {
       setTrackingProgress(0);
       interval = setInterval(() => {
